@@ -99,7 +99,7 @@ ch_peaks.groupTuple()
 
 
  ch_samples_split2.groupTuple()
-     .map { it -> [ it[0], it[4].map{ it2 -> it2.join(' ')}, it[5].flatten().map{ it2 -> it2.join(' ')}] }
+     .map { it -> [ it[0], it[4].map{ it2 -> it2.join(' ')}, it[5].map{ it2 -> it2.join(' ')}] }
      .set { ch_bam_group}
 
 
