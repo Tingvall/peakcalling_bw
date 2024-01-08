@@ -64,7 +64,7 @@ process PEAKCALLING {
       cut -f1-3 ${sample}_rep${rep}_peaks.${type}Peak > ${sample}_rep${rep}.bed
       awk '{\$(NF+1)="${rep}"}1' ${sample}_rep${rep}.bed > ${sample}_rep${rep}_id.bed
       """
-    if (min_overlap == 'broad')
+    else if (min_overlap == 'broad')
       """
       # peak calling for replicates
       macs2 callpeak -t ${bam} -c ${bam_ctrl} -f BAM -g ${params.genome_size} -n ${sample}_rep${rep} -B -q ${params.macs_q}  --broad 2> ${sample}_rep${rep}_macs2.log
