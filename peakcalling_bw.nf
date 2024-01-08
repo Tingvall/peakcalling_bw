@@ -50,7 +50,7 @@ process PEAKCALLING {
     set val(sample), val(rep), val(count), val(type), path(bam), path(bam_ctrl) from ch_samples_split1
 
     output:
-    tuple val(sample), val(count), val(rep), path("${sample}_rep${rep}_sort_peaks.${type}Peak") into ch_peaks
+    tuple val(sample), val(count), val(rep), path("${sample}_rep${rep}_peaks.${type}Peak") into ch_peaks
 
 
     script:
@@ -59,7 +59,7 @@ process PEAKCALLING {
     macs2 callpeak -t ${bam} -c ${bam_ctrl} -f BAM -g ${params.genome_size} -n ${sample}_rep${rep} -B -q ${params.macs_q}  2> ${sample}_rep${rep}_macs2.log
 
     #Sort peak by -log10(p-value)
-    sort -k8,8nr ${sample}_rep${rep}_peaks.${type}Peak > ${sample}_rep${rep}_sort_peaks.${type}Peak
+    #sort -k8,8nr ${sample}_rep${rep}_peaks.${type}Peak > ${sample}_rep${rep}_sort_peaks.${type}Peak
     """
 }
 
