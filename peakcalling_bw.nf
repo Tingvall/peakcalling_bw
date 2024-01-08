@@ -24,7 +24,7 @@ if (params.samples)     { ch_samples = Channel.fromPath(params.samples, checkIfE
     ch_samples
         .splitCsv(header:true, sep:'\t')
         .map { row -> [ row.sample, row.count, row.rep, row.type, file(row.bam), file(row.bam_ctrl)] }
-        .into { ch_samples_split1, ch_samples_split2}
+        .into { ch_samples_split1; ch_samples_split2}
 
 
 println ("""
