@@ -120,10 +120,10 @@ process POOL_BAMS {
     script:
     """
     # Merge bam
-    samtools merge -u ${sample}_pooled_merged.bam ${bams}
+    samtools merge -u ${sample}_pooled.bam ${bams}
 
     # Merge ctrl bams
-    samtools merge -u ${sample}_pooled_ctrl_merged.bam ${ctr_bams}
+    samtools merge -u ${sample}_ctrl_pooled.bam ${bam_ctrls}
     """
 }
 
