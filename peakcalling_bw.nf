@@ -78,7 +78,7 @@ ch_peaks.groupTuple()
    !params.skip_consensus
 
    input:
-   tuple val(sample), val(count), val(rep), val(peaks) from ch_beds_group
+   tuple val(sample), val(count), val(rep), val(peaks) from ch_peaks_group
 
    output:
    path "${sample}_consensus_peaks.bed" into ch_consensus_peaks
