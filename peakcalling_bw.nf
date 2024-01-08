@@ -90,7 +90,7 @@ ch_peaks.groupTuple()
      bedtools multiinter -i $peaks -names $rep > ${sample}_merge.bed
 
      #Filter based on region overlapping
-     awk '$4 >= $count' ${sample}_merge.bed > ${sample}_merge_filt.bed
+     awk '\$4 >= $count' ${sample}_merge.bed > ${sample}_merge_filt.bed
 
      #Merge regions
      bedtools merge -i ${sample}_merge_filt.bed > ${sample}_consensus_peaks.bed
