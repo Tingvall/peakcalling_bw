@@ -50,13 +50,13 @@ process PEAKCALLING {
     set val(sample), val(rep), val(count), val(type), path(bam), path(bam_ctrl) from ch_samples_split1
 
     output:
-    tuple val(sample), val(count), val(rep), path("${sample_id}_rep${rep}_sort_peaks.${type}Peak") into ch_peaks
+    tuple val(sample), val(count), val(rep), path("${sample}_rep${rep}_sort_peaks.${type}Peak") into ch_peaks
 
 
     script:
     """
     # peak calling for replicates
-    macs2 callpeak -t ${bam} -c ${bam_ctrl} -f BAM -g ${params.genome_size} -n ${sample_id}_rep${rep} -B -q ${params.macs_q}  2> ${sample}_rep${rep}_macs2.log
+    macs2 callpeak -t ${bam} -c ${bam_ctrl} -f BAM -g ${params.genome_size} -n ${sample}_rep${rep} -B -q ${params.macs_q}  2> ${sample}_rep${rep}_macs2.log
 
     #Sort peak by -log10(p-value)
     sort -k8,8nr ${sample}_rep${rep}_peaks.${type}Peak > ${sample}_rep${rep}_sort_peaks.${type}Peak
@@ -115,7 +115,7 @@ process POOL_BAMS {
     set val(sample), val(bams), val(bam_ctrls) from ch_bam_group
 
     output:
-    tuple val(sample_id), path("${sample}_pooled.bam"), path("${sample}_ctrl_pooled.bam") into ch_bam_pooled
+    tuple val(sample), path("${sample}_pooled.bam"), path("${sample}_ctrl_pooled.bam") into ch_bam_pooled
 
     script:
     """
@@ -133,7 +133,7 @@ process POOL_BAMS {
  * 11. Generate pooled bigwigs for samples and ctrls
  */
 process GENERATE_POOLED_BIGWIGS {
-    publishDir "${params.outdir}/${sample_id}/bigwigs", mode: 'copy', pattern: '*.bw'
+    publishDir "${params.outdir}/${sample}/bigwigs", mode: 'copy', pattern: '*.bw'
 
     when:
     !params.skip_bigwig
@@ -142,7 +142,7 @@ process GENERATE_POOLED_BIGWIGS {
     set val(sample), path(bam_pool), path(bam_ctrl_pool) from ch_bam_pooled
 
     output:
-    tuple val(sample_id), path("${sample_id}_pooled.bw"), path("${sample_id}_Input_pooled.bw")  into ch_bigwig_pooled
+    tuple val(sample), path("${sample}_pooled.bw"), path("${sample}_Input_pooled.bw")  into ch_bigwig_pooled
 
     script:
     """
