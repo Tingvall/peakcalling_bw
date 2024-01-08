@@ -23,7 +23,7 @@ if (params.help) {
 if (params.samples)     { ch_samples = Channel.fromPath(params.samples, checkIfExists: true) } else { exit 1, 'Samples not specified' }
     ch_samples
         .splitCsv(header:true, sep:'\t')
-        .map { row -> [ row.sample, row.count, row.rep, row.type, file(row.bam), file(row.bam_ctrl)] }
+        .map { row -> [ row.sample, row.min_overlap, row.rep, row.type, file(row.bam), file(row.bam_ctrl)] }
         .into { ch_samples_split1; ch_samples_split2}
 
 
@@ -44,23 +44,28 @@ println ("""
  * 1. Peak calling
  */
 process PEAKCALLING {
-    publishDir "${params.outdir}/${sample}/peaks", mode: 'copy', pattern: '*_peaks.*'
+    publishDir "${params.outdir}/${sample}/peaks", mode: 'copy', pattern: '*_peaks.*Peak'
 
     input:
-    set val(sample), val(count), val(rep), val(type), path(bam), path(bam_ctrl) from ch_samples_split1
+    set val(sample), val(min_overlap), val(rep), val(type), path(bam), path(bam_ctrl) from ch_samples_split1
 
     output:
-    tuple val(sample), val(count), val(rep), path("${sample}_rep${rep}_peaks.${type}Peak") into ch_peaks
+    tuple val(sample), val(min_overlap), val(rep), path("${sample}_rep${rep}_peaks.${type}Peak") into ch_peaks
+    tuple val(sample), val(min_overlap), val(rep), path("${sample}_rep${rep}_id.bed") into ch_bed_for_consensus
 
 
     script:
     """
     # peak calling for replicates
     macs2 callpeak -t ${bam} -c ${bam_ctrl} -f BAM -g ${params.genome_size} -n ${sample}_rep${rep} -B -q ${params.macs_q}  2> ${sample}_rep${rep}_macs2.log
+
+    #Prepare peaks for merging
+    cut -f1-3 ${sample}_rep${rep}_peaks.${type}Peak > ${sample}_rep${rep}.bed
+    awk 'NR==1{$(NF+1)="new column"} NR>1{$(NF+1)="99"}1' ${sample}_rep${rep}.bed > ${sample}_rep${rep}_id.bed
     """
 }
 
-ch_peaks.groupTuple()
+ch_bed_for_consensus.groupTuple()
     .map { it -> [ it[0], it[1].max() as int, it[2].join(' '), it[3].join(' ')] }
     .set { ch_peaks_group}
 
@@ -69,14 +74,13 @@ ch_peaks.groupTuple()
  * 2. Generate consensus peaks per sample
  */
  process INTERACTION_PEAK_INTERSECT {
-   //publishDir "${params.outdir}/${sample}/peaks", mode: 'copy', pattern: '*_consensus_peaks.bed'
    publishDir "${params.outdir}/${sample}/peaks", mode: 'copy', pattern: '*.bed'
 
    when:
    !params.skip_consensus
 
    input:
-   tuple val(sample), val(count), val(rep), val(peaks) from ch_peaks_group
+   tuple val(sample), val(min_overlap), val(rep), val(peaks) from ch_peaks_group
 
    output:
    path "${sample}_consensus_peaks.bed" into ch_consensus_peaks
@@ -84,14 +88,13 @@ ch_peaks.groupTuple()
 
    script:
      """
-     #Combine peaks per sample and count number of sample overlapping each region
-     bedtools multiinter -i $peaks -names $rep > ${sample}_merge.bed
+     #Peaks union
+     cat $peaks > ${sample}_combine_peaks.bed
+     sort -k1,1 -k2,2n ${sample}_combine_peaks.bed > ${sample}_combine_peaks_sort.bed
+     bedtools merge -i ${sample}_combine_peaks_sort.bed -c 4 -o count_distinct > ${sample}_union_peaks.bed
 
-     #Filter based on region overlapping
-     awk '\$4 >= $count' ${sample}_merge.bed > ${sample}_merge_filt.bed
-
-     #Merge regions
-     bedtools merge -i ${sample}_merge_filt.bed > ${sample}_consensus_peaks.bed
+     #Filter based on minimum overlap (set by min_overlap)
+     awk '\$4 >= $min_overlap' ${sample}_union_peaks.bed > ${sample}_consensus_peaks.bed
      """
  }
 
