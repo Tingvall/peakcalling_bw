@@ -29,12 +29,13 @@ if (params.samples)     { ch_samples = Channel.fromPath(params.samples, checkIfE
 
 println ("""
         ===========================================================================================
-                                            Macs2 peakcallig & Pooled biwbig generation
+                                            Macs2 peakcallig & Pooled bigwig generation
         ===========================================================================================
         Sample file: ${params.samples}
         Macs2 q-value: ${params.macs_q}
         Generate consensus peaks: ${params.skip_consensus}
         Generate pooled bigwig: ${params.skip_bigwig}
+        Paired-end mode: ${params.paired_end}
         ===========================================================================================
         """)
 
@@ -67,7 +68,7 @@ process PEAKCALLING {
 
       #Prepare peaks for merging
       cut -f1-3 ${sample}_rep${rep}_peaks.${type}Peak > ${sample}_rep${rep}.bed
-      awk '{\$(NF+1)="${rep}"}1' ${sample}_rep${rep}.bed > ${sample}_rep${rep}_id.bed
+      awk -v OFS='\t' '{\$(NF+1)="${rep}"}1' ${sample}_rep${rep}.bed > ${sample}_rep${rep}_id.bed
       """
 
       else
@@ -82,7 +83,7 @@ process PEAKCALLING {
 
       #Prepare peaks for merging
       cut -f1-3 ${sample}_rep${rep}_peaks.${type}Peak > ${sample}_rep${rep}.bed
-      awk '{\$(NF+1)="${rep}"}1' ${sample}_rep${rep}.bed > ${sample}_rep${rep}_id.bed
+      awk -v OFS='\t' '{\$(NF+1)="${rep}"}1' ${sample}_rep${rep}.bed > ${sample}_rep${rep}_id.bed
       """
 
 }
@@ -116,7 +117,7 @@ ch_bed_for_consensus.groupTuple()
      bedtools merge -i ${sample}_combine_peaks_sort.bed -c 4 -o count_distinct > ${sample}_union_peaks.bed
 
      #Filter based on minimum overlap (set by min_overlap)
-     awk '\$4 >= $min_overlap' ${sample}_union_peaks.bed > ${sample}_consensus_peaks.bed
+     awk -v OFS='\t' '\$4 >= $min_overlap' ${sample}_union_peaks.bed > ${sample}_consensus_peaks.bed
      """
  }
 
