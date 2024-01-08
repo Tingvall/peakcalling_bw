@@ -47,7 +47,7 @@ process PEAKCALLING {
     publishDir "${params.outdir}/${sample}/peaks", mode: 'copy', pattern: '*_peaks.*'
 
     input:
-    set val(sample), val(rep), val(count), val(type), path(bam), path(bam_ctrl) from ch_samples_split1
+    set val(sample), val(count), val(rep), val(type), path(bam), path(bam_ctrl) from ch_samples_split1
 
     output:
     tuple val(sample), val(count), val(rep), path("${sample}_rep${rep}_peaks.${type}Peak") into ch_peaks
