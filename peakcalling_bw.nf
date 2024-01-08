@@ -57,9 +57,6 @@ process PEAKCALLING {
     """
     # peak calling for replicates
     macs2 callpeak -t ${bam} -c ${bam_ctrl} -f BAM -g ${params.genome_size} -n ${sample}_rep${rep} -B -q ${params.macs_q}  2> ${sample}_rep${rep}_macs2.log
-
-    #Sort peak by -log10(p-value)
-    #sort -k8,8nr ${sample}_rep${rep}_peaks.${type}Peak > ${sample}_rep${rep}_sort_peaks.${type}Peak
     """
 }
 
@@ -72,7 +69,8 @@ ch_peaks.groupTuple()
  * 2. Generate consensus peaks per sample
  */
  process INTERACTION_PEAK_INTERSECT {
-   publishDir "${params.outdir}/${sample_}/peaks", mode: 'copy', pattern: '*_consensus_peaks.bed'
+   //publishDir "${params.outdir}/${sample}/peaks", mode: 'copy', pattern: '*_consensus_peaks.bed'
+   publishDir "${params.outdir}/${sample}/peaks", mode: 'copy', pattern: '*.bed'
 
    when:
    !params.skip_consensus
