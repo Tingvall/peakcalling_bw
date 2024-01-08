@@ -64,7 +64,7 @@ process PEAKCALLING {
 }
 
 ch_peaks.groupTuple()
-    .map { it -> [ it[0], it[1].toInteger().max(), it[2].join(' '), it[3].join(' ')] }
+    .map { it -> [ it[0], it[1].max() as int, it[2].join(' '), it[3].join(' ')] }
     .set { ch_peaks_group}
 
 
