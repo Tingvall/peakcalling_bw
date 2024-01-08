@@ -55,24 +55,20 @@ process PEAKCALLING {
 
 
     script:
-    if (min_overlap == 'narrow')
       """
       # peak calling for replicates
-      macs2 callpeak -t ${bam} -c ${bam_ctrl} -f BAM -g ${params.genome_size} -n ${sample}_rep${rep} -B -q ${params.macs_q}  2> ${sample}_rep${rep}_macs2.log
+      if [ $min_overlap = 'broad' ]
+      then
+        macs2 callpeak -t ${bam} -c ${bam_ctrl} -f BAM -g ${params.genome_size} -n ${sample}_rep${rep} -B -q ${params.macs_q} --broad 2> ${sample}_rep${rep}_macs2.log
+      else
+        macs2 callpeak -t ${bam} -c ${bam_ctrl} -f BAM -g ${params.genome_size} -n ${sample}_rep${rep} -B -q ${params.macs_q}2> ${sample}_rep${rep}_macs2.log
+      fi
 
       #Prepare peaks for merging
       cut -f1-3 ${sample}_rep${rep}_peaks.${type}Peak > ${sample}_rep${rep}.bed
       awk '{\$(NF+1)="${rep}"}1' ${sample}_rep${rep}.bed > ${sample}_rep${rep}_id.bed
       """
-    else if (min_overlap == 'broad')
-      """
-      # peak calling for replicates
-      macs2 callpeak -t ${bam} -c ${bam_ctrl} -f BAM -g ${params.genome_size} -n ${sample}_rep${rep} -B -q ${params.macs_q}  --broad 2> ${sample}_rep${rep}_macs2.log
 
-      #Prepare peaks for merging
-      cut -f1-3 ${sample}_rep${rep}_peaks.${type}Peak > ${sample}_rep${rep}.bed
-      awk '{\$(NF+1)="${rep}"}1' ${sample}_rep${rep}.bed > ${sample}_rep${rep}_id.bed
-      """
 }
 
 ch_bed_for_consensus.groupTuple()
