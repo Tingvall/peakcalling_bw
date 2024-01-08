@@ -44,7 +44,7 @@ println ("""
  * 1. Peak calling
  */
 process PEAKCALLING {
-    publishDir "${params.outdir}/${sample}/peaks", mode: 'copy', pattern: '*_sort_peaks.*'
+    publishDir "${params.outdir}/${sample}/peaks", mode: 'copy', pattern: '*_peaks.*'
 
     input:
     set val(sample), val(rep), val(count), val(type), path(bam), path(bam_ctrl) from ch_samples_split1
