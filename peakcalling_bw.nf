@@ -64,7 +64,7 @@ process PEAKCALLING {
 }
 
 ch_peaks.groupTuple()
-    .map { it -> [ it[0], it[1].min, it[2].map{ it2 -> it2.join(' ')}, it[3].map{ it2 -> it2.join(' ')}] }
+    .map { it -> [ it[0], it[1].min, it[2].join(' '), it[3].join(' ')] }
     .set { ch_peaks_group}
 
 
@@ -99,7 +99,7 @@ ch_peaks.groupTuple()
 
 
  ch_samples_split2.groupTuple()
-     .map { it -> [ it[0], it[4].map{ it2 -> it2.join(' ')}, it[5].map{ it2 -> it2.join(' ')}] }
+     .map { it -> [ it[0], it[4].join(' '), it[5].join(' ')] }
      .set { ch_bam_group}
 
 
