@@ -62,7 +62,7 @@ process PEAKCALLING {
 
       #Prepare peaks for merging
       cut -f1-3 ${sample}_rep${rep}_peaks.${type}Peak > ${sample}_rep${rep}.bed
-      awk 'NR==1{$(NF+1)="new column"} NR>1{$(NF+1)="99"}1' ${sample}_rep${rep}.bed > ${sample}_rep${rep}_id.bed
+      awk '{\$(NF+1)="${rep}"}1' ${sample}_rep${rep}.bed > ${sample}_rep${rep}_id.bed
       """
     if ($min_overlap == 'broad')
       """
@@ -71,7 +71,7 @@ process PEAKCALLING {
 
       #Prepare peaks for merging
       cut -f1-3 ${sample}_rep${rep}_peaks.${type}Peak > ${sample}_rep${rep}.bed
-      awk 'NR==1{$(NF+1)="new column"} NR>1{$(NF+1)="99"}1' ${sample}_rep${rep}.bed > ${sample}_rep${rep}_id.bed
+      awk '{\$(NF+1)="${rep}"}1' ${sample}_rep${rep}.bed > ${sample}_rep${rep}_id.bed
       """
 }
 
