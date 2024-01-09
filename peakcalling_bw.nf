@@ -6,6 +6,8 @@ def helpMessage() {
   The typical command for running the pipeline is as follows:
   nextflow run peakcalling_bw.nf --samples samples.txt --outdir outdir
 
+  Use conda environment macs2_idr_env
+  
   """.stripIndent()
   }
 
